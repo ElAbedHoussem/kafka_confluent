@@ -1,0 +1,78 @@
+python send_record.py --topic dataaggregaion --schema-file dataaggregation.avsc --record-value '{"id": "A1", "metric_name": "AC_Field_Main_Cur_A", "metric_value": "1.53", "metric_datetime_utc": 1593854607140, "metric_index": "0", "iana_timezone": "America/Bogota", "processed_datetime_utc": 1593855066019, "data_type": "RAW", "asset_type": "A"}'
+
+python send_record.py --topic dataaggregaion --schema-file dataaggregation.avsc --record-value '{"id": "A1", "metric_name": "AC_Field_Main_Cur_A", "metric_value": "2.1", "metric_datetime_utc": 159385460721, "metric_index": "0", "iana_timezone": "America/Bogota", "processed_datetime_utc": 1593855066032, "data_type": "RAW", "asset_type": "A"}'
+
+python send_record.py --topic dataaggregaion --schema-file dataaggregation.avsc --record-value '{"id": "A1", "metric_name": "AC_Field_Main_Cur_A", "metric_value": "-4.53", "metric_datetime_utc": 1593854607140, "metric_index": "0", "iana_timezone": "America/Bogota", "processed_datetime_utc": 1593855066231, "data_type": "RAW", "asset_type": "A"}'
+
+python send_record.py --topic dataaggregaion --schema-file dataaggregation.avsc --record-value '{"id": "B1", "metric_name": "AC_Field_Main_Cur_B", "metric_value": "-4.53", "metric_datetime_utc": 1593854607321, "metric_index": "0", "iana_timezone": "America/Bogota", "processed_datetime_utc": 1593855066432, "data_type": "RAW", "asset_type": "B"}'
+
+
+
+
+CREATE TABLE windowing_table AS
+  SELECT id, 
+         count(*)
+  FROM dataaggregaion
+  WINDOW TUMBLING (SIZE 5 MINUTE)
+  GROUP BY id 
+
+
+
+
+CREATE TABLE windowing_table2 AS 
+select id, metric_value as(
+			select metric_value as start_metric_value 
+			FROM dataaggregaion
+			where metric_datetime_utc min(FROM_UNIXTIME(metric_datetime_utc))
+			LIMIT 1),
+
+
+
+min(FROM_UNIXTIME(metric_datetime_utc) as start_time), max(FROM_UNIXTIME(metric_datetime_utc) as end_time), metric_name as start_metric_name, as start_metric_value 
+
+
+
+
+
+CREATE TABLE start_metric_value AS
+select metric_value 
+FROM dataaggregaion
+WINDOW TUMBLING (SIZE 5 MINUTE)
+where metric_datetime_utc=min(FROM_UNIXTIME(metric_datetime_utc))
+LIMIT 1
+
+
+CREATE TABLE end_metric_name AS
+select metric_value
+FROM dataaggregaion
+WINDOW TUMBLING (SIZE 5 MINUTE)
+where metric_datetime_utc=max(FROM_UNIXTIME(metric_datetime_utc))
+LIMIT 1
+
+
+
+
+
+EMIT CHANGES;
+
+
+
+
+(SELECT id, FROM_UNIXTIME(metric_datetime_utc) as valeur_datetime
+FROM dataaggregaion
+WINDOW TUMBLING (SIZE 5 MINUTE)
+ORDER BY valeur_datetime DESC
+LIMIT 1)
+
+UNION ALL
+
+(SELECT id, FROM_UNIXTIME(metric_datetime_utc) as valeur_datetime
+FROM dataaggregaion
+WINDOW TUMBLING (SIZE 5 MINUTE)
+ORDER BY valeur_datetime ASC
+LIMIT 1)
+
+
+
+
+

@@ -1,0 +1,43 @@
+{
+  "namespace": "io.codebrews.dataaggregation",
+  "type": "record",
+  "name": "dataaggregation",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "metric_name",
+      "type": "string"
+    },
+    {
+      "name": "metric_value",
+      "type": "string"
+    },
+    {
+      "name": "metric_datetime_utc",
+      "type": "int"
+    },
+    {
+      "name": "metric_index",
+      "type": "string"
+    },
+    {
+      "name": "iana_timezone",
+      "type": "string"
+    },
+    {
+      "name": "processed_datetime_utc",
+      "type": "int"
+    },
+    {
+      "name": "data_type",
+      "type": "string"
+    },
+    {
+      "name": "asset_type",
+      "type": "string"
+    }
+  ]
+}
